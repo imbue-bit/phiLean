@@ -24,4 +24,8 @@ begin
   let h_p_at_w := h_knows w (h_refl a w),
   exact h_p_at_w,
 end
+def Justifies (a : A) (p : KripkeProp) : KripkeProp :=.
+  sorry
+def knows_JTB (a : A) (p : KripkeProp) (j : KripkeProp) : KripkeProp :=
+  fun w => p w ∧ (a Believes p) w ∧ j w
 end Philib.Logic.Epistemic
