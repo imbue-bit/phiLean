@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>phiLean - Reason Recoded</title>
+    <style>
+        /* CSS Reset and Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            background-color: #000;
+            color: #fff;
+            overflow-x: hidden;
+            font-weight: 300;
+        }
+
+        /* The Canvas for Geometric Art */
+        #geometry-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        /* Main Container and Scenes */
+        .main-container {
+            width: 100%;
+        }
+
+        .scene {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 5vw;
+            position: relative;
+            width: 100vw;
+        }
+
+        /* --- Scene 1: Landing --- */
+        #scene1 .title {
+            font-size: clamp(4rem, 15vw, 12rem);
+            font-weight: 200;
+            letter-spacing: -5px;
+            color: #fff;
+            animation: fadeIn 3s ease-in;
+        }
+
+        #scene1 .subtitle {
+            font-size: clamp(1rem, 4vw, 2rem);
+            letter-spacing: 0.5em;
+            text-transform: uppercase;
+            color: #fff;
+            margin-top: 1rem;
+            animation: fadeIn 3s ease-in 0.5s;
+            animation-fill-mode: backwards;
+        }
+
+        /* --- Scene 2: The Problem --- */
+        #scene2 {
+            align-items: flex-start;
+        }
+        
+        #scene2 .huge-title {
+            font-size: clamp(4rem, 12vw, 10rem);
+            font-weight: 700;
+            transform: rotate(-10deg);
+            margin-left: 5vw;
+            position: absolute;
+            top: 15vh;
+            left: 5vw;
+        }
+
+        #scene2 .content {
+            font-size: clamp(1rem, 2vw, 1.2rem);
+            line-height: 1.8;
+            max-width: 500px;
+            position: absolute;
+            bottom: 20vh;
+            right: 10vw;
+            color: #ccc;
+        }
+
+        #scene2 .interactive-word {
+            color: #00FF41;
+            cursor: pointer;
+            text-decoration: underline;
+            text-decoration-color: rgba(0, 255, 65, 0.5);
+            position: relative;
+        }
+        .tooltip {
+            visibility: hidden;
+            background-color: #111;
+            color: #00FF41;
+            font-family: "SF Mono", "Menlo", "Monaco", monospace;
+            text-align: center;
+            border-radius: 6px;
+            padding: 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 150%;
+            left: 50%;
+            margin-left: -120px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            width: 240px;
+            border: 1px solid #00FF41;
+        }
+        .interactive-word:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* --- Scene 3: The Declaration --- */
+        #scene3 {
+            flex-direction: row;
+            justify-content: space-around;
+        }
+
+        .vertical-title {
+            font-size: clamp(4rem, 10vw, 8rem);
+            font-weight: 900;
+            color: #00FF41;
+            line-height: 0.8;
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            transform: rotate(180deg);
+            animation: glitch 1.5s linear infinite;
+        }
+
+        #scene3 .content {
+            max-width: 600px;
+            font-size: clamp(1rem, 2.5vw, 1.5rem);
+            line-height: 1.7;
+            color: #eee;
+        }
+        
+        #scene3 strong {
+            color: #00FF41;
+            font-weight: 500;
+        }
+
+        /* --- Scene 4: The Core --- */
+        #scene4 {
+            flex-direction: column;
+            justify-content: space-evenly;
+            min-height: 200vh; /* Taller scene to fit content */
+        }
+        .core-area {
+            display: flex;
+            width: 90%;
+            max-width: 1200px;
+            margin: 5rem 0;
+            justify-content: space-between;
+            align-items: center;
+            gap: 2rem;
+        }
+        .core-text {
+            flex-basis: 45%;
+        }
+        .core-text h3 {
+            font-size: clamp(2rem, 5vw, 3rem);
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+        .core-text p {
+            font-size: 1.1rem;
+            color: #ccc;
+            margin-top: 1rem;
+        }
+        .core-text code {
+            color: #00FF41;
+            background: #111;
+            padding: 0.2em 0.4em;
+            border-radius: 4px;
+        }
+        .code-block {
+            flex-basis: 50%;
+            background: #0a0a0a;
+            border: 1px solid #333;
+            padding: 1.5rem;
+            font-family: "SF Mono", "Menlo", "Monaco", monospace;
+            font-size: 0.9rem;
+            white-space: pre-wrap;
+            transition: all 0.3s ease;
+        }
+        .code-block .keyword { color: #f92672; }
+        .code-block .type { color: #66d9ef; }
+        .code-block .comment { color: #75715e; }
+        .code-block .proven { color: #00FF41; cursor: pointer; text-decoration: underline;}
+        
+        #moral-calculus-buttons button {
+            background: transparent;
+            border: 1px solid #00FF41;
+            color: #00FF41;
+            padding: 0.5rem 1rem;
+            margin-right: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        #moral-calculus-buttons button.active, #moral-calculus-buttons button:hover {
+            background: #00FF41;
+            color: #000;
+        }
+
+
+        /* --- Scene 5: The Invitation --- */
+        #scene5 {
+            background-color: #fff;
+            color: #000;
+        }
+        #scene5 h2 {
+            font-size: clamp(2.5rem, 8vw, 6rem);
+            font-weight: 500;
+            margin-bottom: 2rem;
+        }
+        #scene5 p {
+            max-width: 700px;
+            text-align: center;
+            font-size: 1.2rem;
+            line-height: 1.8;
+            margin-bottom: 3rem;
+        }
+        .cta-buttons a {
+            display: inline-block;
+            text-decoration: none;
+            color: #000;
+            border: 2px solid #000;
+            padding: 1rem 2rem;
+            margin: 0 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .cta-buttons a:hover {
+            background: #000;
+            color: #fff;
+        }
+        .cta-buttons a.repl {
+            background: #000;
+            color: #fff;
+        }
+        .cta-buttons a.repl:hover {
+            background: #fff;
+            color: #000;
+        }
+
+        /* --- Footer --- */
+        footer {
+            background-color: #fff;
+            color: #888;
+            text-align: center;
+            padding: 2rem;
+            font-size: 0.8rem;
+        }
+
+        /* --- Animations --- */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes glitch {
+            2%, 64% { transform: translate(2px, -2px) skew(0deg) rotate(180deg); }
+            4%, 60% { transform: translate(-2px, 2px) skew(0deg) rotate(180deg); }
+            62% { transform: translate(0, 0) skew(5deg) rotate(180deg); }
+        }
+        
+        /* Media query for smaller screens */
+        @media (max-width: 768px) {
+            .core-area {
+                flex-direction: column;
+            }
+            .core-text, .code-block {
+                flex-basis: 100%;
+                width: 100%;
+            }
+            #scene2 .huge-title {
+                position: static;
+                transform: rotate(0);
+                text-align: center;
+                margin-bottom: 2rem;
+            }
+            #scene2 .content {
+                position: static;
+                max-width: 100%;
+            }
+            #scene3 {
+                flex-direction: column;
+            }
+            .vertical-title {
+                writing-mode: horizontal-tb;
+                transform: rotate(0);
+                margin-bottom: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="geometry-canvas"></canvas>
+
+    <div class="main-container">
+        <section id="scene1" class="scene">
+            <h1 class="title">phiLean</h1>
+            <h2 class="subtitle">Reason.Recoded</h2>
+        </section>
+
+        <section id="scene2" class="scene">
+            <h2 class="huge-title">WORDS ARE CAGES.</h2>
+            <p class="content">
+                For millennia, philosophy has been a prisoner of language. 
+                <span class="interactive-word">Ambiguity<span class="tooltip">`Type Error: expected (A → B), got (A ∨ B → C)`</span></span>. 
+                <span class="interactive-word">Paradox<span class="tooltip">`def paradox := p ↔ ¬p`</span></span>. 
+                Hidden assumptions. We built cathedrals of thought on foundations of sand. 
+                `Truth` became a matter of rhetoric. `Meaning` dissolved into opinion.
+            </p>
+        </section>
+
+        <section id="scene3" class="scene">
+            <h2 class="vertical-title">SEMICOLON.DROP.</h2>
+            <p class="content">
+                We are terminating the process. `phiLean` is not another philosophy. It is a compiler for thought. A verifier for arguments. We don't interpret Wittgenstein. We formalize him. If it compiles, it's valid. If it proves, it's consistent.
+                <br><br>
+                <strong>This is the new Tractatus. And this time, it's executable.</strong>
+            </p>
+        </section>
+
+        <section id="scene4" class="scene">
+            <div class="core-area">
+                <div class="core-text">
+                    <h3>ONTOLOGY AS ALGEBRA.</h3>
+                    <p>What is identity? A feeling? A story? No. It's a proposition. <code>ShipA = ShipB</code></p>
+                </div>
+                <div class="code-block">
+                    <span class="comment">// Is this the same ship?</span><br>
+                    <span class="keyword">theorem</span> <span class="type">paradox</span> :<br>
+                      (<span class="type">IdentityClaim1</span> ∧ <span class="type">IdentityClaim2</span>) → <span class="keyword">False</span> := <br>
+                    <span class="proven" onclick="this.textContent='theorem proven ✓'">proof ...</span>
+                </div>
+            </div>
+
+            <div class="core-area">
+                <div class="core-text">
+                    <h3>ETHICS AS AN API.</h3>
+                    <p>Good and Evil are not mysteries. They are functions. The answer depends on the axioms you import.</p>
+                    <div id="moral-calculus-buttons">
+                        <button id="btn-util" class="active">Utilitarianism</button>
+                        <button id="btn-deon">Deontology</button>
+                    </div>
+                </div>
+                <div id="ethics-code-block" class="code-block">
+                    <span class="comment">-- Under Utilitarianism</span><br>
+                    <span class="keyword">theorem</span> <span class="type">pull_lever_is_obligatory</span> : <span class="keyword">True</span> := <br>
+                    <span class="proven">proven</span>
+                </div>
+            </div>
+
+            <div class="core-area">
+                <div class="core-text">
+                    <h3>KNOWLEDGE AS A PROOF.</h3>
+                    <p>Justified. True. Belief. A beautiful theory. Fatally flawed. The proof was a coincidence. A cosmic glitch in the logic.</p>
+                </div>
+                <div class="code-block">
+                    <span class="keyword">theorem</span> <span class="type">smith_has_JTB_for_P</span> : <span class="keyword">True</span> := <br>
+                    <span class="proven">proven</span><br>
+                    <span class="comment">-- So why doesn't he *know*?</span>
+                </div>
+            </div>
+        </section>
+        
+        <section id="scene5" class="scene">
+            <h2>Stop Arguing. Start Proving.</h2>
+            <p>
+                `phiLean` is more than a library. It's a movement to bring mathematical rigor to the deepest questions of human existence. The source code for reason is now open. The commit history will be the new history of philosophy.
+            </p>
+            <div class="cta-buttons">
+                <a href="https://github.com/imbue-bit/phiLean" target="_blank">[ View on GitHub ]</a>
+                <a href="#" class="repl">[ Launch REPL >_ ]</a>
+            </div>
+        </section>
+
+        <footer>
+            <p>Copyright © 2025 phiLean. Type.Error.Solved.</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // --- Canvas Background ---
+            const canvas = document.getElementById('geometry-canvas');
+            const ctx = canvas.getContext('2d');
+            let lines = [];
+            let sceneStates = [
+                { mode: 'mobius', progress: 0 },
+                { mode: 'chaos', progress: 0 },
+                { mode: 'pulse', progress: 0 },
+                { mode: 'grid', progress: 0 },
+                { mode: 'converge', progress: 0 },
+            ];
+
+            function resizeCanvas() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+
+            class Line {
+                constructor() {
+                    this.reset();
+                }
+                reset() {
+                    this.x = Math.random() * canvas.width;
+                    this.y = Math.random() * canvas.height;
+                    this.len = Math.random() * 20 + 10;
+                    this.angle = Math.random() * Math.PI * 2;
+                    this.speed = Math.random() * 0.5 + 0.1;
+                }
+                update() {
+                    this.x += Math.cos(this.angle) * this.speed;
+                    this.y += Math.sin(this.angle) * this.speed;
+                    if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) {
+                        this.reset();
+                    }
+                }
+                draw(ctx, color = '#333') {
+                    ctx.beginPath();
+                    ctx.moveTo(this.x, this.y);
+                    ctx.lineTo(this.x + Math.cos(this.angle) * this.len, this.y + Math.sin(this.angle) * this.len);
+                    ctx.strokeStyle = color;
+                    ctx.stroke();
+                }
+            }
+            
+            for (let i = 0; i < 150; i++) {
+                lines.push(new Line());
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // Determine current scene based on scroll position
+                const scrollY = window.scrollY;
+                const vh = window.innerHeight;
+                const currentSceneIndex = Math.min(Math.floor(scrollY / vh), sceneStates.length - 1);
+                
+                lines.forEach(line => {
+                    // All lines update their base "chaos" movement
+                    line.update();
+                    
+                    // Specific scene logic can override drawing
+                    const scene = sceneStates[currentSceneIndex];
+                    if (currentSceneIndex === 0) { // Scene 1: Landing (Mobius-like)
+                         // A simple approximation: draw lines in a circular pattern
+                        const centerX = canvas.width / 2;
+                        const centerY = canvas.height / 2;
+                        const radius = Math.min(centerX, centerY) * 0.5;
+                        const angle = (line.x / canvas.width) * Math.PI * 4;
+                        const z = Math.sin(angle/2);
+                        ctx.beginPath();
+                        ctx.moveTo(centerX + radius * Math.cos(angle), centerY + radius * Math.sin(angle) * z);
+                        ctx.lineTo(centerX + radius * Math.cos(angle+0.1), centerY + radius * Math.sin(angle+0.1) * z);
+                        ctx.strokeStyle = `rgba(255, 255, 255, 0.5)`;
+                        ctx.stroke();
+                    } else if (currentSceneIndex === 4 || scrollY > 4.5 * vh) { // Scene 5: Converge
+                        // On final scene, make background white and lines black
+                        ctx.fillStyle = '#fff';
+                        ctx.fillRect(0,0,canvas.width,canvas.height);
+                        line.draw(ctx, '#ddd');
+                    } else { // Other scenes: Chaos/Pulse
+                        const pulse = currentSceneIndex === 2 ? Math.abs(Math.sin(Date.now() * 0.001)) * 0.4 + 0.2 : 0.6;
+                        line.draw(ctx, `rgba(255, 255, 255, ${pulse})`);
+                    }
+                });
+
+                requestAnimationFrame(animate);
+            }
+            animate();
+
+
+            // --- Interactive Code Block for Ethics ---
+            const btnUtil = document.getElementById('btn-util');
+            const btnDeon = document.getElementById('btn-deon');
+            const ethicsCodeBlock = document.getElementById('ethics-code-block');
+
+            const utilCode = `
+<span class="comment">-- Under Utilitarianism</span><br>
+<span class="keyword">theorem</span> <span class="type">pull_lever_is_obligatory</span> : <span class="keyword">True</span> := <br>
+<span class="proven">proven</span>`;
+            
+            const deonCode = `
+<span class="comment">-- Under Deontology</span><br>
+<span class="keyword">theorem</span> <span class="type">pull_lever_is_not_permissible</span> : <span class="keyword">True</span> := <br>
+<span class="proven">proven</span>`;
+
+            btnUtil.addEventListener('click', () => {
+                ethicsCodeBlock.innerHTML = utilCode;
+                btnUtil.classList.add('active');
+                btnDeon.classList.remove('active');
+            });
+
+            btnDeon.addEventListener('click', () => {
+                ethicsCodeBlock.innerHTML = deonCode;
+                btnDeon.classList.add('active');
+                btnUtil.classList.remove('active');
+            });
+
+            // --- Scroll Animations (Simple version) ---
+            const scenes = document.querySelectorAll('.scene');
+            const observer = new IntersectionObserver(entries => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            scenes.forEach(scene => {
+                scene.style.opacity = '0';
+                scene.style.transition = 'opacity 1s, transform 1s';
+                scene.style.transform = 'translateY(50px)';
+                observer.observe(scene);
+            });
+        });
+    </script>
+</body>
+</html>
