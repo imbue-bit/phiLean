@@ -1,7 +1,6 @@
 # phiLean: A Formal Philosophy Library in Lean
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Lean Version](https://img.shields.io/badge/Lean-4-orange.svg)](https://leanprover.github.io/)
+![](banner.png)
 
 **phiLean** is an ambitious, open-source project to formalize philosophical arguments, concepts, and problems using the [Lean 4](https://leanprover.github.io/) interactive theorem prover. The core library, `philib`, aims to be for philosophy what `mathlib` is for mathematics: a comprehensive, community-driven repository of formalized knowledge.
 
