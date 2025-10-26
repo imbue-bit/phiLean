@@ -1,0 +1,133 @@
+{
+  "@context": {
+    "name": "https://schema.org/name",
+    "description": "https://schema.org/description",
+    "hasPart": "https://schema.org/hasPart",
+    "isPartOf": "https://schema.org/isPartOf",
+    "defines": "http://phiLean.dev/ontology#defines",
+    "implements": "http://phiLean.dev/ontology#implements",
+    "models": "http://phiLean.dev/ontology#models",
+    "dependsOn": "http://phiLean.dev/ontology#dependsOn",
+    "apiType": "http://phiLean.dev/ontology#apiType",
+    "filePath": "http://phiLean.dev/ontology#filePath",
+    "syntaxDefinition": "http://phiLean.dev/ontology#syntaxDefinition",
+    "usageExamples": "http://phiLean.dev/ontology#usageExamples",
+    "context": "http://phiLean.dev/ontology#context",
+    "code": "http://phiLean.dev/ontology#code",
+    "assumesAxiom": "http://phiLean.dev/ontology#assumesAxiom"
+  },
+  "@graph": [
+    {
+      "@id": "http://phiLean.dev/Project",
+      "@type": "SoftwareSourceCode",
+      "name": "phiLean Project",
+      "description": "A formal philosophy library built in Lean 4. Your task is to read, write, and reason about code within this project by strictly adhering to the defined APIs and their syntax.",
+      "hasPart": { "@id": "http://phiLean.dev/philib" }
+    },
+    {
+      "@id": "http://phiLean.dev/philib/Logic/Modal",
+      "@type": "SoftwareModule",
+      "name": "philib.Logic.Modal",
+      "filePath": "philib/Logic/Modal.lean",
+      "description": "Defines basic modal logic using Kripke semantics.",
+      "implements": "Modal Logic",
+      "defines": [
+        { "@id": "http://phiLean.dev/api/KripkeFrame" },
+        { "@id": "http://phiLean.dev/api/KripkeProp" },
+        { "@id": "http://phiLean.dev/api/box" },
+        { "@id": "http://phiLean.dev/api/diamond" }
+      ]
+    },
+    {
+      "@id": "http://phiLean.dev/api/KripkeFrame",
+      "@type": "API_Construct",
+      "apiType": "structure",
+      "name": "KripkeFrame",
+      "syntaxDefinition": "structure KripkeFrame (W : Type u) where\n  R : W → W → Prop"
+    },
+    {
+      "@id": "http://phiLean.dev/api/box",
+      "@type": "API_Construct",
+      "apiType": "def",
+      "name": "box",
+      "description": "The necessity operator (□). `□p` is true at world `w` if `p` is true in all worlds accessible from `w`.",
+      "syntaxDefinition": "def box (frame : KripkeFrame W) (p : KripkeProp W) : KripkeProp W",
+      "usageExamples": [
+        {
+          "context": "Defining a proposition `p` and asserting that it is necessary in a given world `w`.",
+          "code": "variable (frame : KripkeFrame W) (p : KripkeProp W) (w : W)\n\n-- To state that 'p is necessary at world w':\ndef p_is_necessary_at_w : Prop := (□p) w\n-- which unfolds to:\ndef p_is_necessary_at_w_unfolded : Prop := ∀ w', frame.R w w' → p w'"
+        }
+      ]
+    },
+    {
+      "@id": "http://phiLean.dev/philib/Ethics/Consequentialism",
+      "@type": "SoftwareModule",
+      "name": "philib.Ethics.Consequentialism",
+      "filePath": "philib/Ethics/Consequentialism.lean",
+      "implements": "Utilitarianism",
+      "defines": [ { "@id": "http://phiLean.dev/api/is_permissible_conseq" } ]
+    },
+    {
+      "@id": "http://phiLean.dev/api/is_permissible_conseq",
+      "@type": "API_Construct",
+      "apiType": "def",
+      "name": "is_permissible",
+      "description": "True if no other available action has strictly greater utility.",
+      "syntaxDefinition": "def is_permissible (utility : UtilityFunction) (consequence : ConsequenceFunction) (scenario : Scenario) (a : Action) : Prop",
+      "usageExamples": [
+        {
+          "context": "Formalizing a theorem that pulling the lever in a specific trolley problem scenario is permissible.",
+          "code": "import philib.Ethics.Consequentialism\n\n-- Assume types, functions, and scenario are defined elsewhere\nvariable (utilFunc : UtilityFunction) (conseqFunc : ConsequenceFunction)\nvariable (trolleyScenario : Scenario) (pullLever : Action)\n\ntheorem pull_lever_is_permissible : is_permissible utilFunc conseqFunc trolleyScenario pullLever :=\nbegin\n  -- Proof would go here, applying the definition of is_permissible\n  sorry\nend"
+        }
+      ]
+    },
+    {
+      "@id": "http://phiLean.dev/philib/Ethics/Deontology",
+      "@type": "SoftwareModule",
+      "name": "philib.Ethics.Deontology",
+      "filePath": "philib/Ethics/Deontology.lean",
+      "implements": "Deontology",
+      "defines": [
+        { "@id": "http://phiLean.dev/api/Maxim" },
+        { "@id": "http://phiLean.dev/api/is_conceivable" },
+        { "@id": "http://phiLean.dev/api/is_permissible_deon" }
+      ]
+    },
+    {
+      "@id": "http://phiLean.dev/api/Maxim",
+      "@type": "API_Construct",
+      "apiType": "def",
+      "name": "Maxim",
+      "syntaxDefinition": "def Maxim (Agent Action State : Type) := Agent → State → Action"
+    },
+    {
+      "@id": "http://phiLean.dev/api/is_conceivable",
+      "@type": "API_Construct",
+      "apiType": "def",
+      "name": "is_conceivable",
+      "description": "Abstract predicate. True if a world governed by the maxim is logically possible. Must be provided as an axiom in problem files.",
+      "assumesAxiom": true,
+      "syntaxDefinition": "def is_conceivable (maxim : Maxim) : Prop",
+      "usageExamples": [
+        {
+          "context": "Stating as an axiom that the maxim 'always lie to get a loan' is not conceivable as a universal law.",
+          "code": "variable (maxim_of_lying_for_loan : Maxim)\n\naxiom lying_maxim_is_inconceivable : ¬ is_conceivable maxim_of_lying_for_loan"
+        }
+      ]
+    },
+    {
+      "@id": "http://phiLean.dev/api/is_permissible_deon",
+      "@type": "API_Construct",
+      "apiType": "def",
+      "name": "is_permissible",
+      "description": "True if the action follows a universalizable maxim.",
+      "syntaxDefinition": "def is_permissible (maxim : Maxim) -- other args implied\n  : Prop := is_conceivable maxim ∧ is_rationally_willed maxim",
+      "usageExamples": [
+        {
+          "context": "Proving that an action based on a specific maxim is not permissible because its maxim is inconceivable.",
+          "code": "variable (maxim_of_lying_for_loan : Maxim)\n\naxiom lying_maxim_is_inconceivable : ¬ is_conceivable maxim_of_lying_for_loan\n\ntheorem lying_for_loan_is_impermissible : ¬ is_permissible maxim_of_lying_for_loan :=\nbegin\n  intro h_perm,\n  -- Unfold the definition of is_permissible\n  cases h_perm with h_conc h_will,\n  -- We have a contradiction with our axiom\n  exact lying_maxim_is_inconceivable h_conc,\nend"
+        }
+      ]
+    }
+  ]
+}
